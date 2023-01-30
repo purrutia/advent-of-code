@@ -5,6 +5,7 @@ filename="$@"
 # variables
 elfs=1
 calories=0
+caloriesbkp=0
 maxcalories=(0 0 0)
 maxelf=0
 
@@ -12,28 +13,31 @@ maxelf=0
 while IFS= read -r line; do
   # If blank line
   if [[ -z $line ]]; then
-    for i in ${!maxcalories[@]}; do
-      if [ "$calories" -gt ${maxcalories[$i]} ]; then
-        maxelf=$elfs
+    for i in "${!maxcalories[@]}"; do
+      if [ "$calories" -gt "${maxcalories[$i]}" ]; then
+        # maxelf=$elfs
+        caloriesbkp=${maxcalories[$i]}
         maxcalories[$i]=$calories
-        echo "maxcalories = ${maxcalories[@]}"
-        break
+        calories=$caloriesbkp
       fi
     done
-    ((elfs++))
     calories=0
     continue
   fi
   calories=$(($calories + $line))
 done < "$filename"
 
-
-for i in ${!maxcalories[@]}; do
-  if [ "$calories" -gt "$maxcalories[$i]" ]; then
-    maxelf=$elfs
+for i in "${!maxcalories[@]}"; do
+  if [ "$calories" -gt "${maxcalories[$i]}" ]; then
+    # maxelf=$elfs
+    caloriesbkp=${maxcalories[$i]}
     maxcalories[$i]=$calories
-    break
+    calories=$caloriesbkp
   fi
 done
 
-echo "Total calories is $maxcalories[@]"
+for cal in "${maxcalories[@]}"; do
+  let total+=$cal
+done
+
+echo "Total calories: ${total}"
